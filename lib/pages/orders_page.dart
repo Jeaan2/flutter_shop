@@ -5,20 +5,35 @@ import 'package:flutter_shop/models/order_list.dart';
 import 'package:provider/provider.dart';
 
 class OrdersPage extends StatelessWidget {
-  const OrdersPage({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    final OrderList orders = Provider.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Meus Pedidos'),
       ),
       drawer: AppDrawer(),
-      body: ListView.builder(
-          itemCount: orders.itemsCount,
-          itemBuilder: (ctx, i) => OrderWidget(order: orders.items[i])),
+      body: FutureBuilder(
+          future: Provider.of<OrderList>(context, listen: false).loadOrders(),
+          builder: (ctx, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else {
+              return Consumer<OrderList>(
+                builder: (ctx, orders, child) => ListView.builder(
+                    itemCount: orders.itemsCount,
+                    itemBuilder: (ctx, i) =>
+                        OrderWidget(order: orders.items[i])),
+              );
+            }
+          }),
+
+      // body: _isLoading
+      //     ? Center(
+      //         child: CircularProgressIndicator(),
+      //       )
+      //     : ListView.builder(
+      //         itemCount: orders.itemsCount,
+      //         itemBuilder: (ctx, i) => OrderWidget(order: orders.items[i])),
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_shop/models/auth.dart';
 import 'package:flutter_shop/models/cart.dart';
 import 'package:flutter_shop/models/order_list.dart';
 import 'package:flutter_shop/models/product_list.dart';
+import 'package:flutter_shop/pages/auth_or_home_page.dart';
 import 'package:flutter_shop/pages/auth_page.dart';
 import 'package:flutter_shop/pages/cart_page.dart';
 import 'package:flutter_shop/pages/orders_page.dart';
@@ -24,7 +26,13 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => ProductList(),
+          create: (_) => Auth(),
+        ),
+        ChangeNotifierProxyProvider<Auth, ProductList>(
+          create: (_) => ProductList('', []),
+          update: (context, auth, previous) {
+            return ProductList(auth.token ?? '', previous?.items ?? []);
+          },
         ),
         ChangeNotifierProvider(
           create: (_) => Cart(),
@@ -41,8 +49,7 @@ class MyApp extends StatelessWidget {
             accentColor: Colors.deepOrange,
             fontFamily: 'Lato'),
         routes: {
-          AppRoutes.AUTH: (context) => AuthPage(),
-          AppRoutes.HOME: (context) => ProductOverviewPage(),
+          AppRoutes.AUTH_OR_HOME: (context) => AuthOrHomePage(),
           AppRoutes.PRODUCT_DETAIL: (context) => ProductDetailPage(),
           AppRoutes.CART: (context) => CartPage(),
           AppRoutes.ORDERS: (context) => OrdersPage(),
